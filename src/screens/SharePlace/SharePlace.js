@@ -7,6 +7,7 @@ import MainText from '../../components/UI/MainText/MainText';
 import HeadingText from '../../components/UI/HeadingText/HeadingText';
 import PickImage from '../../components/PickImage/PickImage';
 import PickLocation from '../../components/PickLocation/PickLocation';
+import validate from '../../utility/validation';
 
 class SharePlaceScreen extends Component {
   // this naming convention for navigatorStyle is important
@@ -16,7 +17,16 @@ class SharePlaceScreen extends Component {
   };
 
   state = {
-    placeName: ''
+    controls: {
+      placeName: {
+        value: '',
+        valid: false,
+        touched: false,
+        validationRules: {
+          notEmpty: true
+        }
+      }
+    }
   };
 
   constructor(props) {
@@ -33,18 +43,40 @@ class SharePlaceScreen extends Component {
   };
 
   placeNameChangedHandler = placeName => {
-    this.setState({ placeName });
+    this.setState({
+      controls: {
+        ...this.state.controls,
+        placeName: {
+          ...this.state.controls.placeName,
+          value: placeName,
+          valid: validate(
+            placeName,
+            this.state.controls.placeName.validationRules
+          ),
+          touched: true
+        }
+      }
+    });
   };
 
   placeAddedHandler = () => {
-    if (this.state.placeName.trim() !== '') {
-      this.props.onAddPlace(this.state.placeName);
-      this.setState({ placeName: '' });
+    if (this.state.controls.placeName.value.trim() !== '') {
+      this.props.onAddPlace(this.state.controls.placeName.value);
+      this.setState({
+        controls: {
+          ...this.state.controls,
+          placeName: {
+            ...this.state.controls.placeName,
+            value: '',
+            touched: false
+          }
+        }
+      });
     }
   };
 
   render() {
-    const { placeName } = this.state;
+    const { placeName } = this.state.controls;
     return (
       <ScrollView contentContainerStyle={styles.container}>
         {/* instead of using contentContainerStyle above for the scroll view, could have also just used a traditional style with a View around everything besides the ScrollView*/}
@@ -54,11 +86,15 @@ class SharePlaceScreen extends Component {
         <PickImage />
         <PickLocation />
         <PlaceInput
-          placeName={placeName}
+          placeData={placeName}
           placeNameChangedHandler={this.placeNameChangedHandler}
         />
         <View style={styles.button}>
-          <Button title="Share the Place!" onPress={this.placeAddedHandler} />
+          <Button
+            title="Share the Place!"
+            onPress={this.placeAddedHandler}
+            disabled={!placeName.valid}
+          />
         </View>
       </ScrollView>
     );

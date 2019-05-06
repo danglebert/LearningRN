@@ -11,6 +11,9 @@ const validate = (val, rules, connectedValue) => {
       case 'equalTo':
         isValid = isValid && equalToValidator(val, connectedValue[rule]);
         break;
+      case 'notEmpty':
+        isValid = isValid && notEmptyValidator(val);
+        break;
       default:
         isValid = true;
     }
@@ -25,5 +28,10 @@ const emailValidator = val =>
 const minLengthValidator = (val, minLength) => val.length >= minLength;
 
 const equalToValidator = (pw, cpw) => pw === cpw;
+
+const notEmptyValidator = val => {
+  // console.log('val passed: ', val.trim() !== '');
+  return val.trim() !== '';
+};
 
 export default validate;

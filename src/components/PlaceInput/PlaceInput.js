@@ -2,10 +2,12 @@ import React from 'react';
 import { StyleSheet } from 'react-native';
 import DefaultInput from '../UI/DefaultInput/DefaultInput';
 
-const PlaceInput = ({ placeName, placeNameChangedHandler }) => (
+const PlaceInput = ({ placeData, placeNameChangedHandler }) => (
   <DefaultInput
     placeholder="Place Name"
-    value={placeName}
+    value={placeData.value}
+    valid={placeData.valid}
+    touched={placeData.touched}
     onChangeText={placeNameChangedHandler}
     style={styles.input}
   />

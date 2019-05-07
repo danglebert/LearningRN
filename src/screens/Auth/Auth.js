@@ -24,7 +24,7 @@ class AuthScreen extends Component {
     loginMode: false,
     controls: {
       email: {
-        value: '',
+        value: 'test@t.com',
         valid: false,
         validationRules: {
           isEmail: true

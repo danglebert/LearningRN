@@ -25,6 +25,10 @@ class SharePlaceScreen extends Component {
         validationRules: {
           notEmpty: true
         }
+      },
+      location: {
+        value: null,
+        valid: false
       }
     }
   };
@@ -61,7 +65,10 @@ class SharePlaceScreen extends Component {
 
   placeAddedHandler = () => {
     if (this.state.controls.placeName.value.trim() !== '') {
-      this.props.onAddPlace(this.state.controls.placeName.value);
+      this.props.onAddPlace(
+        this.state.controls.placeName.value,
+        this.state.controls.location.value
+      );
       this.setState({
         controls: {
           ...this.state.controls,
@@ -75,8 +82,20 @@ class SharePlaceScreen extends Component {
     }
   };
 
+  locationPickedHandler = location => {
+    this.setState({
+      controls: {
+        ...this.state.controls,
+        location: {
+          value: location,
+          valid: true
+        }
+      }
+    });
+  };
+
   render() {
-    const { placeName } = this.state.controls;
+    const { placeName, location } = this.state.controls;
     return (
       <ScrollView contentContainerStyle={styles.container}>
         {/* instead of using contentContainerStyle above for the scroll view, could have also just used a traditional style with a View around everything besides the ScrollView*/}
@@ -84,7 +103,7 @@ class SharePlaceScreen extends Component {
           <HeadingText>Share a place with us!</HeadingText>
         </MainText>
         <PickImage />
-        <PickLocation />
+        <PickLocation onLocationPick={this.locationPickedHandler} />
         <PlaceInput
           placeData={placeName}
           placeNameChangedHandler={this.placeNameChangedHandler}
@@ -93,7 +112,7 @@ class SharePlaceScreen extends Component {
           <Button
             title="Share the Place!"
             onPress={this.placeAddedHandler}
-            disabled={!placeName.valid}
+            disabled={!placeName.valid || !location.valid}
           />
         </View>
       </ScrollView>
@@ -123,7 +142,7 @@ const styles = StyleSheet.create({
 });
 
 const mapDispatch = dispatch => ({
-  onAddPlace: placeName => dispatch(addPlace(placeName))
+  onAddPlace: (placeName, location) => dispatch(addPlace(placeName, location))
 });
 
 export default connect(

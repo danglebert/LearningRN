@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, Button, StyleSheet, Dimensions } from 'react-native';
+import { View, Button, StyleSheet } from 'react-native';
 import MapView from 'react-native-maps'; // Can name this whatever, it is the default export of r-n-m
 
 class PickLocation extends Component {
@@ -8,15 +8,37 @@ class PickLocation extends Component {
       latitude: 37.7900352,
       longitude: -122.4013726,
       latitudeDelta: 0.0122,
-      longitudeDelta:
-        (Dimensions.get('window').width / Dimensions.get('window').height) *
-        0.0122
+      longitudeDelta: 0.0001
     },
     locationChosen: false
   };
 
+  getLocationHandler = () => {
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        this.pickLocationHandler({
+          nativeEvent: {
+            coordinate: {
+              latitude: pos.coords.latitude,
+              longitude: pos.coords.longitude
+            }
+          }
+        });
+      },
+      err => {
+        console.log(err);
+        alert('Fetching position failed, please pick one manually.');
+      }
+    );
+  };
+
   pickLocationHandler = evt => {
     const coords = evt.nativeEvent.coordinate;
+    this.map.animateToRegion({
+      ...this.state.focusedLocation,
+      latitude: coords.latitude,
+      longitude: coords.longitude
+    });
     this.setState({
       focusedLocation: {
         ...this.state.focusedLocation,
@@ -24,6 +46,10 @@ class PickLocation extends Component {
         longitude: coords.longitude
       },
       locationChosen: true
+    });
+    this.props.onLocationPick({
+      latitude: coords.latitude,
+      longitude: coords.longitude
     });
   };
 
@@ -39,14 +65,16 @@ class PickLocation extends Component {
       <View style={styles.container}>
         <MapView
           initialRegion={focusedLocation}
-          region={focusedLocation}
           style={styles.map}
           onPress={this.pickLocationHandler}
+          ref={ref => {
+            this.map = ref;
+          }} // more details on ref here https://reactjs.org/docs/refs-and-the-dom.html - made a reference to this mapview component that is called "map"
         >
           {marker}
         </MapView>
         <View style={styles.button}>
-          <Button title="Locate Me" onPress={() => alert('Pick Location!')} />
+          <Button title="Locate Me" onPress={this.getLocationHandler} />
         </View>
       </View>
     );

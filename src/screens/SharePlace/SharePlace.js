@@ -29,6 +29,10 @@ class SharePlaceScreen extends Component {
       location: {
         value: null,
         valid: false
+      },
+      image: {
+        value: null,
+        valid: false
       }
     }
   };
@@ -67,7 +71,8 @@ class SharePlaceScreen extends Component {
     if (this.state.controls.placeName.value.trim() !== '') {
       this.props.onAddPlace(
         this.state.controls.placeName.value,
-        this.state.controls.location.value
+        this.state.controls.location.value,
+        this.state.controls.image.value
       );
       this.setState({
         controls: {
@@ -94,15 +99,27 @@ class SharePlaceScreen extends Component {
     });
   };
 
+  imagePickedHander = img => {
+    this.setState({
+      controls: {
+        ...this.state.controls,
+        image: {
+          value: img,
+          valid: true
+        }
+      }
+    });
+  };
+
   render() {
-    const { placeName, location } = this.state.controls;
+    const { placeName, location, image } = this.state.controls;
     return (
       <ScrollView contentContainerStyle={styles.container}>
         {/* instead of using contentContainerStyle above for the scroll view, could have also just used a traditional style with a View around everything besides the ScrollView*/}
         <MainText>
           <HeadingText>Share a place with us!</HeadingText>
         </MainText>
-        <PickImage />
+        <PickImage onImagePicked={this.imagePickedHander} />
         <PickLocation onLocationPick={this.locationPickedHandler} />
         <PlaceInput
           placeData={placeName}
@@ -112,7 +129,7 @@ class SharePlaceScreen extends Component {
           <Button
             title="Share the Place!"
             onPress={this.placeAddedHandler}
-            disabled={!placeName.valid || !location.valid}
+            disabled={!placeName.valid || !location.valid || !image.valid}
           />
         </View>
       </ScrollView>
@@ -142,7 +159,8 @@ const styles = StyleSheet.create({
 });
 
 const mapDispatch = dispatch => ({
-  onAddPlace: (placeName, location) => dispatch(addPlace(placeName, location))
+  onAddPlace: (placeName, location, image) =>
+    dispatch(addPlace(placeName, location, image))
 });
 
 export default connect(

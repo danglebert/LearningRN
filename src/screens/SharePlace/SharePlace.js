@@ -1,5 +1,11 @@
 import React, { Component } from 'react';
-import { View, Button, StyleSheet, ScrollView } from 'react-native';
+import {
+  View,
+  Button,
+  StyleSheet,
+  ScrollView,
+  ActivityIndicator
+} from 'react-native';
 import { connect } from 'react-redux';
 import { addPlace } from '../../store/actions/index';
 import PlaceInput from '../../components/PlaceInput/PlaceInput';
@@ -113,6 +119,15 @@ class SharePlaceScreen extends Component {
 
   render() {
     const { placeName, location, image } = this.state.controls;
+    let submitButton = (
+      <Button
+        title="Share the Place!"
+        onPress={this.placeAddedHandler}
+        disabled={!placeName.valid || !location.valid || !image.valid}
+      />
+    );
+
+    if (this.props.isLoading) submitButton = <ActivityIndicator />;
     return (
       <ScrollView contentContainerStyle={styles.container}>
         {/* instead of using contentContainerStyle above for the scroll view, could have also just used a traditional style with a View around everything besides the ScrollView*/}
@@ -125,13 +140,7 @@ class SharePlaceScreen extends Component {
           placeData={placeName}
           placeNameChangedHandler={this.placeNameChangedHandler}
         />
-        <View style={styles.button}>
-          <Button
-            title="Share the Place!"
-            onPress={this.placeAddedHandler}
-            disabled={!placeName.valid || !location.valid || !image.valid}
-          />
-        </View>
+        <View style={styles.button}>{submitButton}</View>
       </ScrollView>
     );
   }
@@ -158,12 +167,16 @@ const styles = StyleSheet.create({
   }
 });
 
+const mapState = state => ({
+  isLoading: state.ui.isLoading
+});
+
 const mapDispatch = dispatch => ({
   onAddPlace: (placeName, location, image) =>
     dispatch(addPlace(placeName, location, image))
 });
 
 export default connect(
-  null,
+  mapState,
   mapDispatch
 )(SharePlaceScreen);

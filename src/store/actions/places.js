@@ -1,7 +1,9 @@
 import { ADD_PLACE, DELETE_PLACE } from './actionTypes';
+import { uiStartLoading, uiStopLoading } from './index';
 
 export const addPlace = (placeName, location, image) => {
   return dispatch => {
+    dispatch(uiStartLoading());
     fetch(
       'https://us-central1-learningrn-40203.cloudfunctions.net/storeImage',
       {
@@ -11,7 +13,10 @@ export const addPlace = (placeName, location, image) => {
         })
       }
     )
-      .catch(err => console.log(err))
+      .catch(err => {
+        console.log(err);
+        dispatch(uiStopLoading());
+      })
       .then(res => res.json())
       .then(parsedRes => {
         const placeData = {
@@ -25,10 +30,14 @@ export const addPlace = (placeName, location, image) => {
           body: JSON.stringify(placeData)
         });
       })
-      .catch(err => console.log(err))
+      .catch(err => {
+        console.log(err);
+        dispatch(uiStopLoading());
+      })
       .then(res => res.json())
       .then(parsedRes => {
         console.log('parsed response: ', parsedRes);
+        dispatch(uiStopLoading());
       });
   };
 };

@@ -2,10 +2,6 @@ import { ADD_PLACE, DELETE_PLACE } from './actionTypes';
 
 export const addPlace = (placeName, location, image) => {
   return dispatch => {
-    const placeData = {
-      placeName,
-      location
-    };
     fetch(
       'https://us-central1-learningrn-40203.cloudfunctions.net/storeImage',
       {
@@ -18,18 +14,22 @@ export const addPlace = (placeName, location, image) => {
       .catch(err => console.log(err))
       .then(res => res.json())
       .then(parsedRes => {
+        const placeData = {
+          placeName,
+          location,
+          image: parsedRes.imageUrl
+        };
+
+        return fetch('https://learningrn-40203.firebaseio.com/places.json', {
+          method: 'POST',
+          body: JSON.stringify(placeData)
+        });
+      })
+      .catch(err => console.log(err))
+      .then(res => res.json())
+      .then(parsedRes => {
         console.log('parsed response: ', parsedRes);
       });
-    //   fetch('https://learningrn-40203.firebaseio.com/places.json', {
-    //     method: 'POST',
-    //     body: JSON.stringify(placeData)
-    //   })
-    //     .catch(err => console.log(err))
-    //     .then(res => res.json())
-    //     .then(parsedRes => {
-    //       console.log(parsedRes);
-    //     });
-    // };
   };
 };
 

@@ -1,11 +1,11 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 
-const ListItem = ({ place, image, onItemSelected, itemKey }) => (
+const ListItem = ({ placeName, image, onItemSelected, itemKey }) => (
   <TouchableOpacity onPress={() => onItemSelected(itemKey)}>
     <View style={styles.listItem}>
       <Image source={image} style={styles.placeImage} />
-      <Text>{place}</Text>
+      <Text>{placeName}</Text>
     </View>
   </TouchableOpacity>
 );

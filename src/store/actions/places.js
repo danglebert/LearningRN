@@ -1,4 +1,4 @@
-import { ADD_PLACE, DELETE_PLACE } from './actionTypes';
+import { SET_PLACES, REMOVE_PLACE } from './actionTypes';
 import { uiStartLoading, uiStopLoading } from './index';
 
 export const addPlace = (placeName, location, image) => {
@@ -42,7 +42,52 @@ export const addPlace = (placeName, location, image) => {
   };
 };
 
-export const deletePlace = placeKey => ({
-  type: DELETE_PLACE,
-  placeKey
+export const getPlaces = () => {
+  return dispatch => {
+    fetch('https://learningrn-40203.firebaseio.com/places.json')
+      .catch(err => {
+        console.log(err);
+      })
+      .then(res => res.json())
+      .then(parsedRes => {
+        const places = [];
+        console.log('here: ', parsedRes);
+        for (let key in parsedRes) {
+          places.push({
+            ...parsedRes[key],
+            key: key,
+            image: {
+              uri: parsedRes[key].image
+            }
+          });
+        }
+        dispatch(setPlaces(places));
+      });
+  };
+};
+
+export const setPlaces = places => ({
+  type: SET_PLACES,
+  places
+});
+
+export const deletePlace = placeKey => {
+  return dispatch => {
+    fetch(`https://learningrn-40203.firebaseio.com/places/${placeKey}.json`, {
+      method: 'DELETE'
+    })
+      .catch(err => {
+        console.log(err);
+      })
+      .then(res => res.json())
+      .then(parsedRes => {
+        console.log('Successfully Deleted');
+        dispatch(removePlace(placeKey));
+      });
+  };
+};
+
+export const removePlace = key => ({
+  type: REMOVE_PLACE,
+  key
 });

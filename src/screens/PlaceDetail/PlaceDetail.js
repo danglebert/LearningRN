@@ -49,7 +49,7 @@ class PlaceDetailScreen extends Component {
     return (
       <View style={styles[`${view}Container`]}>
         <View style={styles.heading}>
-          <Text style={styles.placeName}>{place.name}</Text>
+          <Text style={styles.placeName}>{place.placeName}</Text>
           <TouchableOpacity
             style={styles.deleteBtn}
             onPress={() => this.placeDeletedHandler(place.key)}

@@ -18,7 +18,7 @@ const PlaceList = ({ places, onItemSelected }) => {
       data={places}
       renderItem={data => (
         <ListItem
-          place={data.item.name}
+          placeName={data.item.placeName}
           image={data.item.image}
           itemKey={data.item.key}
           onItemSelected={onItemSelected}

@@ -12,14 +12,14 @@ export const addPlace = (placeName, location, image) => {
       .then(token => {
         authToken = token;
         return fetch(
-          `https://us-central1-learningrn-40203.cloudfunctions.net/storeImage`,
+          'https://us-central1-learningrn-40203.cloudfunctions.net/storeImage',
           {
             method: 'POST',
             body: JSON.stringify({
               image: image.base64
             }),
             headers: {
-              Authorization: 'Bearer ' + authToken
+              authorization: 'Bearer ' + authToken
             }
           }
         );
@@ -28,9 +28,11 @@ export const addPlace = (placeName, location, image) => {
         console.log('Err after cloud func: ', err);
         dispatch(uiStopLoading());
       })
-      // .then(res => res.json())
+      .then(res => {
+        console.log('res HERE: ', res);
+        return res.json();
+      })
       .then(parsedRes => {
-        console.log('in parsed: ', parsedRes);
         const placeData = {
           placeName,
           location,

@@ -15,7 +15,7 @@ const gcConfig = {
 const gcs = require('@google-cloud/storage')(gcConfig);
 
 admin.initializeApp({
-  credential: admin.credential.cert(learningRn)
+  credential: admin.credential.cert(require('./learning-RN.json'))
 });
 
 exports.storeImage = functions.https.onRequest((req, res) => {
@@ -31,6 +31,7 @@ exports.storeImage = functions.https.onRequest((req, res) => {
 
     let idToken;
     idToken = request.headers.authorization.split('Bearer ')[1];
+    console.log('idToken in FUNCTIONS: ', idToken);
 
     admin
       .auth()
@@ -75,7 +76,7 @@ exports.storeImage = functions.https.onRequest((req, res) => {
                   uniqueId
               });
             } else {
-              console.log(err);
+              console.log('error in cloud func: ', err);
               res.status(500).json({ error: err });
             }
           }

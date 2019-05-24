@@ -51,7 +51,6 @@ export const getPlaces = () => {
       .then(res => res.json())
       .then(parsedRes => {
         const places = [];
-        console.log('here: ', parsedRes);
         for (let key in parsedRes) {
           places.push({
             ...parsedRes[key],

@@ -6,9 +6,9 @@ import {
   Dimensions,
   KeyboardAvoidingView,
   Keyboard,
-  TouchableWithoutFeedback
+  TouchableWithoutFeedback,
+  ActivityIndicator
 } from 'react-native';
-import startMainTabs from '../MainTabs/startMainTabs';
 import DefaultInput from '../../components/UI/DefaultInput/DefaultInput';
 import HeadingText from '../../components/UI/HeadingText/HeadingText';
 import MainText from '../../components/UI/MainText/MainText';
@@ -69,14 +69,13 @@ class AuthScreen extends Component {
     });
   };
 
-  loginHandler = () => {
+  authHandler = () => {
     const authData = {
       email: this.state.controls.email.value,
       password: this.state.controls.password.value
     };
 
-    this.props.onLogin(authData);
-    startMainTabs();
+    this.props.onTryAuth(authData, this.state.loginMode);
   };
 
   updateInputState = (key, value) => {
@@ -133,6 +132,19 @@ class AuthScreen extends Component {
     const { email, password, confirmPassword } = controls;
     let headingText = null;
     let confirmPasswordText = null;
+    let submitButton = (
+      <ButtonWithBackground
+        color="#29aaf4"
+        onPress={this.authHandler}
+        disabled={
+          !email.valid ||
+          !password.valid ||
+          (!confirmPassword.valid && !loginMode)
+        }
+      >
+        Submit
+      </ButtonWithBackground>
+    );
 
     if (view === 'vert') {
       headingText = (
@@ -157,6 +169,10 @@ class AuthScreen extends Component {
           />
         </View>
       );
+    }
+
+    if (this.props.isLoading) {
+      submitButton = <ActivityIndicator />;
     }
 
     return (
@@ -202,17 +218,7 @@ class AuthScreen extends Component {
               </View>
             </View>
           </TouchableWithoutFeedback>
-          <ButtonWithBackground
-            color="#29aaf4"
-            onPress={this.loginHandler}
-            disabled={
-              !email.valid ||
-              !password.valid ||
-              (!confirmPassword.valid && !loginMode)
-            }
-          >
-            Submit
-          </ButtonWithBackground>
+          {submitButton}
         </KeyboardAvoidingView>
       </ImageBackground>
     );
@@ -248,11 +254,15 @@ const styles = StyleSheet.create({
   }
 });
 
+const mapState = state => ({
+  isLoading: state.ui.isLoading
+});
+
 const mapDispatch = dispatch => ({
-  onLogin: authData => dispatch(tryAuth(authData))
+  onTryAuth: (authData, loginMode) => dispatch(tryAuth(authData, loginMode))
 });
 
 export default connect(
-  null,
+  mapState,
   mapDispatch
 )(AuthScreen);

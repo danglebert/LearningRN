@@ -1,9 +1,22 @@
 import { SET_PLACES, REMOVE_PLACE } from './actionTypes';
-import { uiStartLoading, uiStopLoading } from './index';
+import { uiStartLoading, uiStopLoading, authGetToken } from './index';
 
 export const addPlace = (placeName, location, image) => {
   return dispatch => {
     dispatch(uiStartLoading());
+    dispatch(authGetToken()).catch(() => {
+      alert('no token found').then(token => {
+        return fetch(
+          `https://us-central1-learningrn-40203.cloudfunctions.net/storeImage`,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              image: image.base64
+            })
+          }
+        );
+      });
+    });
     fetch(
       'https://us-central1-learningrn-40203.cloudfunctions.net/storeImage',
       {
@@ -30,13 +43,13 @@ export const addPlace = (placeName, location, image) => {
           body: JSON.stringify(placeData)
         });
       })
-      .catch(err => {
-        console.log(err);
-        dispatch(uiStopLoading());
-      })
       .then(res => res.json())
       .then(parsedRes => {
         console.log('parsed response: ', parsedRes);
+        dispatch(uiStopLoading());
+      })
+      .catch(err => {
+        console.log(err);
         dispatch(uiStopLoading());
       });
   };
@@ -44,9 +57,14 @@ export const addPlace = (placeName, location, image) => {
 
 export const getPlaces = () => {
   return dispatch => {
-    fetch('https://learningrn-40203.firebaseio.com/places.json')
-      .catch(err => {
-        console.log(err);
+    dispatch(authGetToken())
+      .then(token =>
+        fetch(
+          `https://learningrn-40203.firebaseio.com/places.json?auth=${token}`
+        )
+      )
+      .catch(() => {
+        alert('no valid token found');
       })
       .then(res => res.json())
       .then(parsedRes => {
@@ -61,6 +79,10 @@ export const getPlaces = () => {
           });
         }
         dispatch(setPlaces(places));
+      })
+      .catch(err => {
+        alert('There was an error, try again');
+        console.log(err);
       });
   };
 };
@@ -72,16 +94,25 @@ export const setPlaces = places => ({
 
 export const deletePlace = placeKey => {
   return dispatch => {
-    fetch(`https://learningrn-40203.firebaseio.com/places/${placeKey}.json`, {
-      method: 'DELETE'
-    })
-      .catch(err => {
-        console.log(err);
+    dispatch(authGetToken())
+      .catch(() => {
+        alert('no valid token found');
+      })
+      .then(token => {
+        fetch(
+          `https://learningrn-40203.firebaseio.com/places/${placeKey}.json?auth=${token}`,
+          {
+            method: 'DELETE'
+          }
+        );
       })
       .then(res => res.json())
       .then(parsedRes => {
         console.log('Successfully Deleted');
         dispatch(removePlace(placeKey));
+      })
+      .catch(err => {
+        console.log(err);
       });
   };
 };

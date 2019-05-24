@@ -3,45 +3,47 @@ import { uiStartLoading, uiStopLoading, authGetToken } from './index';
 
 export const addPlace = (placeName, location, image) => {
   return dispatch => {
+    let authToken;
     dispatch(uiStartLoading());
-    dispatch(authGetToken()).catch(() => {
-      alert('no token found').then(token => {
+    dispatch(authGetToken())
+      .catch(() => {
+        alert('no token found');
+      })
+      .then(token => {
+        authToken = token;
         return fetch(
           `https://us-central1-learningrn-40203.cloudfunctions.net/storeImage`,
           {
             method: 'POST',
             body: JSON.stringify({
               image: image.base64
-            })
+            }),
+            headers: {
+              Authorization: 'Bearer ' + authToken
+            }
           }
         );
-      });
-    });
-    fetch(
-      'https://us-central1-learningrn-40203.cloudfunctions.net/storeImage',
-      {
-        method: 'POST',
-        body: JSON.stringify({
-          image: image.base64
-        })
-      }
-    )
+      })
       .catch(err => {
-        console.log(err);
+        console.log('Err after cloud func: ', err);
         dispatch(uiStopLoading());
       })
-      .then(res => res.json())
+      // .then(res => res.json())
       .then(parsedRes => {
+        console.log('in parsed: ', parsedRes);
         const placeData = {
           placeName,
           location,
           image: parsedRes.imageUrl
         };
 
-        return fetch('https://learningrn-40203.firebaseio.com/places.json', {
-          method: 'POST',
-          body: JSON.stringify(placeData)
-        });
+        return fetch(
+          `https://learningrn-40203.firebaseio.com/places.json?auth=${authToken}`,
+          {
+            method: 'POST',
+            body: JSON.stringify(placeData)
+          }
+        );
       })
       .then(res => res.json())
       .then(parsedRes => {
@@ -49,7 +51,7 @@ export const addPlace = (placeName, location, image) => {
         dispatch(uiStopLoading());
       })
       .catch(err => {
-        console.log(err);
+        console.log('err after data fetch ', err);
         dispatch(uiStopLoading());
       });
   };

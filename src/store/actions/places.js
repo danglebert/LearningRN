@@ -103,7 +103,7 @@ export const deletePlace = placeKey => {
         alert('no valid token found');
       })
       .then(token => {
-        fetch(
+        return fetch(
           `https://learningrn-40203.firebaseio.com/places/${placeKey}.json?auth=${token}`,
           {
             method: 'DELETE'
